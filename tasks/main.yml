@@ -1,0 +1,33 @@
+---
+
+- name: Partition
+  parted:
+    device: "{{ item.device }}"
+    label: "gpt"
+    part_type: primary
+    state: present
+    number: "1"
+  loop: "{{ volumes }}"
+
+- name: Create filesystem
+  community.general.filesystem:
+    dev: "{{ item.device }}-part1"
+    fstype: ext4
+    state: present
+  loop: "{{ volumes }}"
+
+- name: Record in fstab and mount
+  ansible.posix.mount:
+    state: mounted
+    path: "{{ item.path }}"
+    fstype: ext4
+    src: "{{ item.device }}-part1"
+  loop: "{{ volumes }}"
+
+
+
+
+
+
+
+
